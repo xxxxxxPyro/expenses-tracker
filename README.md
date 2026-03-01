@@ -15,17 +15,24 @@ Telegram → OpenClaw → Ollama (qwen2.5:7b) → FastAPI Tools → PostgreSQL
 ```
 nfe-tracker/
 ├── app/
-│   ├── main.py          # FastAPI — servidor de ferramentas
-│   ├── sefaz.py         # Parser HTML da SEFAZ SP (BeautifulSoup)
-│   ├── qr_decoder.py    # Decodificador de QR code (pyzbar)
-│   ├── nl_query.py      # Perguntas em linguagem natural → SQL (Ollama)
-│   └── db.py            # Conexão e queries PostgreSQL
-├── schema.sql           # Schema do banco de dados
-├── docker-compose.yml   # PostgreSQL + App
-├── Dockerfile
-├── requirements.txt
-├── .env.example
-└── openclaw-config.md   # Como configurar o OpenClaw + Telegram
+|   ├── __init__.py        # Root for self test
+│   ├── main.py            # FastAPI — servidor de ferramentas
+|   ├── telegram_bot.py    # Bot handler
+│   ├── sefaz.py           # Parser HTML da SEFAZ SP (BeautifulSoup)
+│   ├── qr_decoder.py      # Decodificador de QR code (pyzbar)
+│   ├── nl_query.py        # Perguntas em linguagem natural → SQL (Ollama)
+|   ├── debug.py           # Outputs logging information to debug what is being saved into database
+│   └── db.py              # Conexão e queries PostgreSQL
+├── deployments/
+|   ├── schema.sql         # Schema do banco de dados
+|   ├── docker-compose.yml # PostgreSQL + App
+│   └── dockerfile         # Contain docker configuration and deployment instructions
+├── requirements.txt       # dependencies for application usage
+├── .env.example           # non-masked application sensitive data, such as password and api tokens xD
+├── .gitignore             # yup
+├── Makefile               # uh-huh
+├── LICENSE                # thanks MIT
+└── openclaw-config.md     # Como configurar o OpenClaw + Telegram
 ```
 
 ---

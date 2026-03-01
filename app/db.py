@@ -9,9 +9,9 @@ from contextlib import contextmanager
 DSN = (
     f"host={os.getenv('DB_HOST', 'localhost')} "
     f"port={os.getenv('DB_PORT', '5432')} "
-    f"dbname={os.getenv('DB_NAME', 'nfe_tracker')} "
-    f"user={os.getenv('DB_USER', 'nfe')} "
-    f"password={os.getenv('DB_PASSWORD', 'nfepass')}"
+    f"dbname={os.getenv('DB_NAME', 'expenses_tracker')} "
+    f"user={os.getenv('DB_USER', 'expenses')} "
+    f"password={os.getenv('DB_PASSWORD', 'expensespass')}"
 )
 
 

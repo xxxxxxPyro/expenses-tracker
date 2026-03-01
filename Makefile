@@ -1,15 +1,15 @@
 # ============================================================
-# NF-e Tracker — Makefile
+# Expenses Tracker — Makefile
 # Usage: make <command>
 # Run from project root: ~/repos/expenses-tracker/
 # ============================================================
 
 COMPOSE     = docker-compose -f deployments/docker-compose.yml
-BOT         = nfe_bot
-APP         = nfe_app
-DB          = nfe_db
-DB_USER     = nfe
-DB_NAME     = nfe_tracker
+BOT         = expenses_bot
+APP         = expenses_app
+DB          = expenses_db
+DB_USER     = expenses
+DB_NAME     = expenses_tracker
 
 .DEFAULT_GOAL := help
 
@@ -17,7 +17,7 @@ DB_NAME     = nfe_tracker
 
 help:
 	@echo ""
-	@echo "  NF-e Tracker — Available commands"
+	@echo "  Expenses Tracker — Available commands"
 	@echo ""
 	@echo "  DOCKER"
 	@echo "    make up          Start all containers"

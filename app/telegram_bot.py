@@ -1,5 +1,5 @@
 """
-app/telegram_bot.py — NF-e Tracker bot with full multi-user support
+app/telegram_bot.py — Expenses Tracker bot with full multi-user support
 """
 import os
 import io

@@ -1,5 +1,5 @@
 """
-main.py — NF-e Tracker Tool Server
+main.py — Expenses Tracker Tool Server
 
 Exposes two tools for OpenClaw/Ollama via HTTP:
   POST /tools/process-qr    — receives an image, decodes QR, fetches SEFAZ, saves to DB
@@ -21,7 +21,7 @@ from app.db import save_purchase, run_query
 from app.nl_query import question_to_sql, format_answer
 
 app = FastAPI(
-    title="NF-e Tracker",
+    title="Expenses Tracker",
     description="Tool server for tracking Brazilian NF-e purchases via Telegram + Ollama",
     version="1.0.0",
 )

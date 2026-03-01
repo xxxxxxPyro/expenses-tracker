@@ -13,7 +13,7 @@ Telegram → OpenClaw → Ollama (qwen2.5:7b) → FastAPI Tools → PostgreSQL
 ## 🗂️ Estrutura do projeto
 
 ```
-nfe-tracker/
+expenses-tracker/
 ├── app/
 |   ├── __init__.py        # Root for self test
 │   ├── main.py            # FastAPI — servidor de ferramentas

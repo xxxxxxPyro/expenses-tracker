@@ -2,6 +2,8 @@
 -- NF-e Tracker — Full Schema (multi-user)
 -- ============================================================
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE IF NOT EXISTS users (
     id               SERIAL PRIMARY KEY,
     internal_id      UUID DEFAULT gen_random_uuid() UNIQUE NOT NULL,

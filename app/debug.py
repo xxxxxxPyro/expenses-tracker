@@ -8,7 +8,7 @@ os.environ.setdefault("DB_HOST", "localhost")
 os.environ.setdefault("DB_PORT", "5432")
 os.environ.setdefault("DB_USER", "nfe")
 os.environ.setdefault("DB_PASSWORD", "nfepass")
-os.environ.setdefault("DB_NAME", "nfe_tracker")
+os.environ.setdefault("DB_NAME", "expenses_tracker")
 
 import httpx
 from bs4 import BeautifulSoup

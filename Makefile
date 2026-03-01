@@ -35,7 +35,6 @@ help:
 	@echo "    make logs-db     Tail database logs"
 	@echo ""
 	@echo "  DATABASE"
-	@echo "    make migrate     Run latest migration"
 	@echo "    make psql        Open psql shell"
 	@echo "    make db-reset    ⚠️  Wipe all data and reset IDs"
 	@echo "    make db-tables   List all tables"

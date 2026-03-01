@@ -11,7 +11,7 @@ services:
       POSTGRES_DB: ${DB_NAME:-nfe_tracker}
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./deployments/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - /schema.sql:/docker-entrypoint-initdb.d/schema.sql
     ports:
       - "5432:5432"
     healthcheck:
@@ -35,7 +35,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - ./app:/app/app
+      - ../app:/app/app
 
   bot:
     build:
@@ -49,7 +49,7 @@ services:
     env_file: ../.env
     network_mode: host
     volumes:
-      - ./app:/app/app
+      - ../app:/app/app
     command: python -m app.telegram_bot
 
 volumes:

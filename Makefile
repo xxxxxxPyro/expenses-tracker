@@ -78,6 +78,10 @@ restart-app:
 ps:
 	$(COMPOSE) ps
 
+cleanup:
+	$(COMPOSE) down --volumes --remove-orphans
+	docker system prune -f
+
 # ── Logs ──────────────────────────────────────────────────────────────────────
 
 logs:

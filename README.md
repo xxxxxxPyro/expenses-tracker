@@ -26,7 +26,7 @@ expenses-tracker/
 ├── deployments/
 |   ├── schema.sql         # Schema do banco de dados
 |   ├── docker-compose.yml # PostgreSQL + App
-│   └── dockerfile         # Contain docker configuration and deployment instructions
+│   └── Dockerfile         # Contain docker configuration and deployment instructions
 ├── requirements.txt       # dependencies for application usage
 ├── .env.example           # non-masked application sensitive data, such as password and api tokens xD
 ├── .gitignore             # yup
@@ -65,7 +65,10 @@ ollama pull qwen2.5:7b
 ### 3. Suba o banco e o servidor
 
 ```bash
-#build to build the image
+# Using make (recommended)
+make build
+
+# Or manually
 docker-compose -f deployments/docker-compose.yml up -d
 ```
 

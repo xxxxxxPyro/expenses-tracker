@@ -1,11 +1,10 @@
 # 🧾 Expenses Tracker
 
-Rastreador de compras via nota fiscal eletrônica brasileira (NF-e / NFC-e).
-Envie uma foto do cupom fiscal para o Telegram → o bot decodifica o QR, busca os dados
-na SEFAZ SP, salva no PostgreSQL e responde perguntas sobre seus gastos em linguagem natural.
+Rastreador de compras via cupom fiscal eletrônico brasileiro (NFC-e).  
+Envie uma foto do cupom para o bot do Telegram → ele decodifica o QR, busca os dados na SEFAZ SP, salva no PostgreSQL e responde perguntas sobre seus gastos.
 
 ```
-Telegram → OpenClaw → Ollama (qwen2.5:7b) → FastAPI Tools → PostgreSQL
+Foto do cupom → Bot Telegram → QR Code → API SEFAZ SP → PostgreSQL
 ```
 
 ---
@@ -15,149 +14,181 @@ Telegram → OpenClaw → Ollama (qwen2.5:7b) → FastAPI Tools → PostgreSQL
 ```
 expenses-tracker/
 ├── app/
-|   ├── __init__.py        # Root for self test
-│   ├── main.py            # FastAPI — servidor de ferramentas
-|   ├── telegram_bot.py    # Bot handler
+│   ├── __init__.py        # Pacote Python
+│   ├── telegram_bot.py    # Bot do Telegram (handlers, registro de usuários)
 │   ├── sefaz.py           # Parser HTML da SEFAZ SP (BeautifulSoup)
 │   ├── qr_decoder.py      # Decodificador de QR code (pyzbar)
 │   ├── nl_query.py        # Perguntas em linguagem natural → SQL (Ollama)
-|   ├── debug.py           # Outputs logging information to debug what is being saved into database
-│   └── db.py              # Conexão e queries PostgreSQL
+│   ├── db.py              # Conexão e queries PostgreSQL
+│   ├── main.py            # FastAPI — servidor auxiliar
+│   └── debug.py           # Script de diagnóstico
 ├── deployments/
-|   ├── schema.sql         # Schema do banco de dados
-|   ├── docker-compose.yml # PostgreSQL + App
-│   └── Dockerfile         # Contain docker configuration and deployment instructions
-├── requirements.txt       # dependencies for application usage
-├── .env.example           # non-masked application sensitive data, such as password and api tokens xD
-├── .gitignore             # yup
-├── Makefile               # uh-huh
-├── LICENSE                # thanks MIT
-└── openclaw-config.md     # Como configurar o OpenClaw + Telegram
+│   ├── schema.sql         # Schema do banco de dados
+│   ├── docker-compose.yml # PostgreSQL + App + Bot
+│   └── Dockerfile         # Imagem Docker da aplicação
+├── requirements.txt       # Dependências Python
+├── .env.example           # Exemplo de variáveis de ambiente
+├── .gitignore
+├── Makefile               # Comandos úteis
+└── LICENSE
 ```
 
 ---
 
-## 🚀 Setup rápido
+## 🚀 Setup
 
 ### Pré-requisitos
 
 - [Docker + Docker Compose](https://docs.docker.com/get-docker/)
-- [Ollama](https://ollama.com/download) instalado na máquina host
-- Bot do Telegram criado via @BotFather
+- Bot do Telegram criado via [@BotFather](https://t.me/BotFather)
 
 ### 1. Clone e configure
 
 ```bash
-git clone https://github.com/xxxxxxPyro/cube-ocr.git
+git clone https://github.com/xxxxxxPyro/expenses-tracker.git
 cd expenses-tracker
+cp .env.example .env
+# Edite .env e adicione seu TELEGRAM_TOKEN
 ```
 
-### 2. Baixe o modelo Ollama
+### 2. Suba os containers
 
 ```bash
-# Opção A: local (recomendado, ~5GB)
-ollama pull qwen2.5:7b
-
-# Opção B: cloud (mais rápido, requer conta)
-# use minimax-m2.5:cloud no .env
-```
-
-### 3. Suba o banco e o servidor
-
-```bash
-# Using make (recommended)
 make build
-
-# Or manually
-docker-compose -f deployments/docker-compose.yml up -d
 ```
 
-Verifique:
+### 3. Aplique o schema do banco
+
 ```bash
-curl http://localhost:8000/health
-# → {"status":"ok"}
+docker exec -i expenses_db psql -U expenses -d expenses_tracker < deployments/schema.sql
 ```
 
-### 4. Configure o OpenClaw + Telegram
+### 4. Verifique
 
-Siga as instruções em [`openclaw-config.md`](./openclaw-config.md)
+```bash
+make ps        # containers rodando
+make logs-bot  # logs do bot em tempo real
+```
+
+Abra o Telegram, envie `/start` ao seu bot e cadastre seu e-mail.
 
 ---
 
-## 💬 O que você pode perguntar ao bot
+## 💬 Como usar
 
-| Pergunta | Resposta |
+### Registrar uma compra
+Envie uma **foto do cupom fiscal** (ou como arquivo para melhor qualidade do QR).  
+O bot irá:
+1. Decodificar o QR code
+2. Consultar a API da SEFAZ SP
+3. Extrair todos os dados (loja, itens, valores, descontos)
+4. Salvar no banco de dados
+5. Exibir o resumo da compra
+
+### Consultar gastos
+Digite perguntas em linguagem natural:
+
+| Pergunta | O que retorna |
 |---|---|
-| `[foto do cupom]` | Salva a compra e exibe resumo |
-| "Quanto gastei esse mês?" | Total do mês atual |
-| "Quais itens eu mais compro?" | Top 10 produtos |
-| "Compare janeiro com fevereiro" | Gastos lado a lado |
-| "Quanto economizei em descontos?" | Total de descontos |
-| "Em qual loja gasto mais?" | Ranking por estabelecimento |
-| "Me lista as últimas 5 compras" | Histórico recente |
+| `Quanto gastei esse mês?` | Total do mês atual |
+| `Quais itens eu mais compro?` | Top 10 produtos |
+| `Em qual loja gasto mais?` | Ranking por estabelecimento |
+| `Quanto economizei em descontos?` | Total de descontos acumulados |
+| `Me lista as últimas 5 compras` | Histórico recente |
+
+### Comandos disponíveis
+
+| Comando | Descrição |
+|---|---|
+| `/start` | Boas-vindas e registro |
+| `/help` | Lista de comandos |
+| `/minha_conta` | Seus dados cadastrados |
+| `/resumo` | Resumo do mês atual |
+| `/top` | Top 10 produtos mais comprados |
+| `/ultimas` | Últimas 5 compras |
 
 ---
-
-## 🔧 Endpoints da API
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| `GET` | `/health` | Status do servidor |
-| `POST` | `/tools/process-qr` | Processa imagem com QR de NF-e |
-| `POST` | `/tools/query` | Pergunta em linguagem natural |
-| `GET` | `/tools/schema` | Definições de tools para Ollama |
-| `GET` | `/docs` | Swagger UI interativo |
-
----
-
-## Makefile
-```
-make help          # show all commands
-
-make build         # rebuild everything
-make restart-bot   # restart bot + show last 10 log lines
-make logs-bot      # tail bot logs live
-
-make db-users      # see registered users
-make db-purchases  # see latest purchases
-make psql          # open DB shell directly
-
-make gw-stop       # kill OpenClaw gateway
-make health        # ping the API
-```
 
 ## 🗄️ Schema do banco
 
-```sql
+```
+users      — usuários registrados (email + telegram_user_id + internal UUID)
 purchases  — uma linha por nota fiscal
 items      — uma linha por item da nota
-monthly_summary  — view: resumo mensal
-top_items        — view: itens mais comprados
+monthly_summary  — view: resumo mensal por usuário
+top_items        — view: itens mais comprados por usuário
 ```
+
+Cada usuário tem isolamento completo dos dados via `internal_user_id` (UUID).
 
 ---
 
-## 🔮 Próximos passos (roadmap)
+## 🛠️ Makefile — comandos disponíveis
 
-- [ ] Suporte a outros estados (SEFAZ RJ, MG, etc.)
-- [ ] Gráficos mensais enviados pelo bot
-- [ ] Alertas de orçamento (`/alerta 500 supermercado`)
-- [ ] Exportar para Excel/CSV
-- [ ] Categorização automática de produtos com Ollama
-- [ ] Suporte multi-usuário (CPF por chat ID)
+```bash
+make help           # lista todos os comandos
+
+# Docker
+make build          # rebuild completo
+make up             # subir containers
+make down           # parar containers
+make restart        # reiniciar tudo
+make restart-bot    # reiniciar só o bot
+make ps             # status dos containers
+
+# Logs
+make logs           # todos os containers
+make logs-bot       # logs do bot
+make logs-db        # logs do banco
+
+# Banco de dados
+make psql           # abrir shell psql
+make db-tables      # listar tabelas
+make db-users       # ver usuários registrados
+make db-purchases   # ver últimas compras
+make db-reset       # ⚠️ apagar todos os dados
+
+# Diagnóstico
+make health         # checar API auxiliar
+make shell-bot      # shell dentro do container do bot
+```
 
 ---
 
 ## 🐛 Problemas comuns
 
-**QR não decodificado:** Foto muito escura ou borrada. Tente com boa iluminação
-e o QR centralizado. O bot tenta 3 estratégias de decodificação automaticamente.
+**QR não decodificado**  
+Foto muito escura ou borrada. Tente com boa iluminação e o QR centralizado. Envie como **arquivo** (não foto) para evitar compressão. O bot tenta 3 estratégias de decodificação automaticamente.
 
-**SEFAZ inacessível:** A SEFAZ SP às vezes fica lenta. O bot tentará novamente.
-Você também pode consultar manualmente em https://www.nfce.fazenda.sp.gov.br/consulta
+**SEFAZ inacessível**  
+A SEFAZ SP às vezes fica lenta. Consulte manualmente em https://www.nfce.fazenda.sp.gov.br/consulta
 
-**Ollama não responde:** Verifique se o Ollama está rodando:
+**`relation "users" does not exist`**  
+O schema não foi aplicado. Execute:
 ```bash
-ollama list
-curl http://localhost:11434/api/tags
+docker exec -i expenses_db psql -U expenses -d expenses_tracker < deployments/schema.sql
 ```
+
+**Bot não responde**  
+Verifique se não há outro processo usando o mesmo token:
+```bash
+make gw-stop   # para o OpenClaw se estiver rodando
+make restart-bot
+```
+
+---
+
+## 🔮 Roadmap
+
+- [ ] Suporte a outros estados (SEFAZ RJ, MG, RS, etc.)
+- [ ] Gráficos mensais enviados pelo bot
+- [ ] Alertas de orçamento (`/alerta 500 supermercado`)
+- [ ] Exportar para Excel/CSV
+- [ ] Categorização automática de produtos
+- [ ] Dashboard web
+
+---
+
+## Licença
+
+MIT

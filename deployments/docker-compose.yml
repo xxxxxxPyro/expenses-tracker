@@ -20,26 +20,9 @@ services:
       timeout: 5s
       retries: 5
 
-  app:
-    build:
-      context: ..        # ← one level up from ./docker
-      dockerfile: deployments/Dockerfile
-    container_name: expenses_app
-    restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
-    env_file: ../.env
-    ports:
-      - "8000:8000"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    volumes:
-      - ../app:/app/app
-
   bot:
     build:
-      context: ..        # ← one level up from ./docker
+      context: ..
       dockerfile: deployments/Dockerfile
     container_name: expenses_bot
     restart: unless-stopped
@@ -54,3 +37,4 @@ services:
 
 volumes:
   pgdata:
+    name: expenses_tracker_pgdata
